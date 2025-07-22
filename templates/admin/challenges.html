@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Challenges - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-puzzle-piece"></i> Manage Challenges</h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+    </div>
+</div>
+
+<!-- Add Challenge Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add New Challenge</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="id" class="form-label">Challenge ID</label>
+                                <input type="text" class="form-control" name="id" required 
+                                       placeholder="e.g., web001">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-control" name="category" required>
+                                    <option value="Web">Web</option>
+                                    <option value="Crypto">Crypto</option>
+                                    <option value="Pwn">Pwn</option>
+                                    <option value="Rev">Reverse Engineering</option>
+                                    <option value="Misc">Miscellaneous</option>
+                                    <option value="Forensics">Forensics</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="difficulty" class="form-label">Difficulty</label>
+                                <select class="form-control" name="difficulty" required>
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="base_score" class="form-label">Base Score</label>
+                                <input type="number" class="form-control" name="base_score" required min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3 form-check mt-4">
+                                <input type="checkbox" class="form-check-input" name="visible" id="visible" checked>
+                                <label class="form-check-label" for="visible">
+                                    Visible
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="flag" class="form-label">Flag</label>
+                                <input type="text" class="form-control" name="flag" required 
+                                       placeholder="DUCTF{example_flag}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="requires" class="form-label">Prerequisites (comma-separated IDs)</label>
+                                <input type="text" class="form-control" name="requires" 
+                                       placeholder="web001,crypto001">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Add Challenge
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Challenges -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Existing Challenges ({{ challenges|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if challenges %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Solves</th>
+                                <th>Visible</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for challenge in challenges %}
+                            <tr>
+                                <td><code>{{ challenge.id }}</code></td>
+                                <td>{{ challenge.title }}</td>
+                                <td><span class="badge bg-secondary">{{ challenge.category }}</span></td>
+                                <td>{{ challenge.base_score }}</td>
+                                <td>{{ challenge.solves }}</td>
+                                <td>
+                                    {% if challenge.visible %}
+                                        <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('Delete challenge {{ challenge.title }}?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No challenges created yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

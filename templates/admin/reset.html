@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Reset CTF - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-redo text-danger"></i> Reset CTF</h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-exclamation-triangle"></i> Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <h6>Reset CTF Data</h6>
+                <p>This action will:</p>
+                <ul>
+                    <li class="text-danger">Delete all user scores and progress</li>
+                    <li class="text-danger">Clear all flag submission logs</li>
+                    <li class="text-danger">Remove all login history</li>
+                    <li class="text-warning">Keep admin accounts</li>
+                    <li class="text-warning">Keep all challenges</li>
+                    <li class="text-warning">Keep configuration settings</li>
+                </ul>
+                
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action cannot be undone! Make sure you have exported any data you need before proceeding.
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="confirm" required>
+                        <label class="form-check-label" for="confirm">
+                            I understand that this action cannot be undone
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-danger" id="resetBtn" disabled>
+                        <i class="fas fa-redo"></i> Reset CTF Data
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('confirm').addEventListener('change', function() {
+    document.getElementById('resetBtn').disabled = !this.checked;
+});
+</script>
+{% endblock %}

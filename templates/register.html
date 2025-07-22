@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Register - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-user-plus"></i> Join Crew</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    {% if team_mode %}
+                    <div class="mb-3">
+                        <label for="team_name" class="form-label">Team Name (Optional)</label>
+                        <input type="text" class="form-control" name="team_name">
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Join</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('login') }}">Already have an account? Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

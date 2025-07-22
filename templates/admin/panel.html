@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+        <p class="lead">Manage your CTF platform from here</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-cog fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Configuration</h5>
+                <p class="card-text">Manage CTF settings, timing, and general configuration</p>
+                <a href="{{ url_for('admin_config') }}" class="btn btn-primary">Configure</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-puzzle-piece fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Challenges</h5>
+                <p class="card-text">Add, edit, and manage CTF challenges</p>
+                <a href="{{ url_for('admin_challenges') }}" class="btn btn-success">Manage</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Users</h5>
+                <p class="card-text">View registered users and login logs</p>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-info">View Users</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-bullhorn fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Announcements</h5>
+                <p class="card-text">Post announcements to all users</p>
+                <a href="{{ url_for('admin_announcements') }}" class="btn btn-warning">Manage</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-3x text-secondary mb-3"></i>
+                <h5 class="card-title">Submissions</h5>
+                <p class="card-text">View flag submission logs and attempts</p>
+                <a href="{{ url_for('admin_submissions') }}" class="btn btn-secondary">View Logs</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-redo fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Reset CTF</h5>
+                <p class="card-text">Reset all data for a new CTF round</p>
+                <a href="{{ url_for('admin_reset') }}" class="btn btn-danger">Reset</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Data Files Card -->
+    <div class="col-md-4 mb-3">
+    <div class="card text-center">
+        <div class="card-body">
+            <i class="fas fa-download fa-3x text-dark mb-3"></i>
+            <h5 class="card-title">Download Data Files</h5>
+            <p class="card-text">Download all platform data as JSON files</p>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('admin_download_file', filename='users.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> users.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='challenges.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> challenges.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='scores.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> scores.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='submissions.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> submissions.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='announcements.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> announcements.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='config.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> config.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='logins.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> logins.json
+                </a>
+                <a href="{{ url_for('admin_download_file', filename='teams.json') }}" class="btn btn-outline-info mb-1" download>
+                    <i class="fas fa-file-download"></i> teams.json
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- End Download Data Files Card -->
+
+</div>
+{% endblock %}

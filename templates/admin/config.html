@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-cog"></i> CTF Configuration</h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>General Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" name="ctf_active" 
+                                       id="ctf_active" {{ 'checked' if config.ctf_active }}>
+                                <label class="form-check-label" for="ctf_active">
+                                    <strong>CTF Active</strong>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" name="dynamic_scoring" 
+                                       id="dynamic_scoring" {{ 'checked' if config.dynamic_scoring }}>
+                                <label class="form-check-label" for="dynamic_scoring">
+                                    <strong>Dynamic Scoring</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" name="team_mode" 
+                                       id="team_mode" {{ 'checked' if config.team_mode }}>
+                                <label class="form-check-label" for="team_mode">
+                                    <strong>Team Mode</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ctf_start" class="form-label">CTF Start Time</label>
+                                <input type="datetime-local" class="form-control" name="ctf_start" 
+                                       value="{{ config.ctf_start }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ctf_end" class="form-label">CTF End Time</label>
+                                <input type="datetime-local" class="form-control" name="ctf_end" 
+                                       value="{{ config.ctf_end }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="rate_limit" class="form-label">Rate Limit (per minute)</label>
+                                <input type="number" class="form-control" name="rate_limit" 
+                                       value="{{ config.rate_limit }}" min="1" max="100">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="min_score" class="form-label">Minimum Score</label>
+                                <input type="number" class="form-control" name="min_score" 
+                                       value="{{ config.min_score }}" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <h6>Telegram Integration</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="telegram_bot_token" class="form-label">Bot Token</label>
+                                <input type="text" class="form-control" name="telegram_bot_token" 
+                                       value="{{ config.telegram_bot_token }}" placeholder="Bot Token">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="telegram_chat_id" class="form-label">Chat ID</label>
+                                <input type="text" class="form-control" name="telegram_chat_id" 
+                                       value="{{ config.telegram_chat_id }}" placeholder="Chat ID">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6>Configuration Help</h6>
+            </div>
+            <div class="card-body">
+                <small>
+                    <strong>CTF Active:</strong> Enable/disable the entire CTF<br><br>
+                    <strong>Dynamic Scoring:</strong> Scores decrease as more people solve<br><br>
+                    <strong>Team Mode:</strong> Allow team registration and team scoreboard<br><br>
+                    <strong>Rate Limit:</strong> Maximum flag submissions per minute per user<br><br>
+                    <strong>Minimum Score:</strong> Lowest possible score for dynamic scoring
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

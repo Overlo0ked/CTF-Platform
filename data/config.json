@@ -1,0 +1,11 @@
+{
+  "ctf_active": true,
+  "ctf_start": "2025-07-20T18:20",
+  "ctf_end": "2025-07-20T18:30",
+  "dynamic_scoring": false,
+  "team_mode": false,
+  "rate_limit": 10,
+  "min_score": 50,
+  "telegram_bot_token": "7036944447:AAEwksxhaVVmjefFziomma4AH6-xqDf8sM0",
+  "telegram_chat_id": "1253970404"
+}

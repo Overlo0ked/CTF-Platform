@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Flag Submissions - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-file-alt"></i> Flag Submission Logs</h2>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Submissions (Last 100)</h5>
+            </div>
+            <div class="card-body">
+                {% if submissions %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Challenge</th>
+                                <th>Flag</th>
+                                <th>Result</th>
+                                <th>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in submissions[-100:]|reverse %}
+                            <tr class="{{ 'table-success' if submission.success else 'table-danger' }}">
+                                <td>{{ submission.timestamp[:19] if submission.timestamp else 'N/A' }}</td>
+                                <td>{{ submission.user_id[:8] }}...</td>
+                                <td><code>{{ submission.challenge_id }}</code></td>
+                                <td class="text-truncate" style="max-width: 200px;">
+                                    <code>{{ submission.flag }}</code>
+                                </td>
+                                <td>
+                                    {% if submission.success %}
+                                        <span class="badge bg-success">✓ Correct</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">✗ Wrong</span>
+                                    {% endif %}
+                                </td>
+                                <td><code>{{ submission.ip }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No submissions logged yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-success">{{ submissions|selectattr('success')|list|length }}</h4>
+                <p>Correct Submissions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-danger">{{ submissions|rejectattr('success')|list|length }}</h4>
+                <p>Wrong Submissions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-info">{{ submissions|length }}</h4>
+                <p>Total Submissions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="text-primary">{{ ((submissions|selectattr('success')|list|length / submissions|length * 100) | round(1)) if submissions|length > 0 else 0 }}%</h4>
+                <p>Success Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

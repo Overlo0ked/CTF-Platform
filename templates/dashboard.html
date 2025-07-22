@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}🏴‍☠️ Your Pirate Ship - Grand Line CTF{% endblock %}
+
+{% block content %}
+{% if not ctf_active %}
+    <div class="text-center">
+        <div class="card bg-ship glow-treasure">
+            <div class="card-body">
+                <h2><i class="fas fa-anchor text-treasure"></i> The Blue Sea Bootcamp is Closed</h2>
+                <p class="lead">The treasure hunt is not currently active. Return when the winds favor adventure, future Pirate King!</p>
+                <div class="mt-3">
+                    <span class="badge badge-paramecia">🔥 Devil Fruit Powers</span>
+                    <span class="badge badge-logia">⚡ Logia Types</span>
+                    <span class="badge badge-zoan">🦁 Zoan Forms</span>
+                    <span class="badge badge-special">✨ Special Abilities</span>
+                    <span class="badge badge-marine">⚓ Marine Justice</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Latest Ship Log (when CTF is inactive) -->
+        {% if latest_announcement %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-ship glow-ocean">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-scroll text-yonko"></i> Latest News Coo Message
+                        </h5>
+                        {% if all_announcements|length > 1 %}
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#allAnnouncementsModal">
+                            <i class="fas fa-feather"></i> View All Messages ({{ all_announcements|length }})
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-feather fa-2x text-treasure me-3"></i>
+                            <div>
+                                <h6 class="text-treasure">{{ latest_announcement.title }}</h6>
+                                <p class="mb-1">{{ latest_announcement.content }}</p>
+                                <small class="text-muted">📅 {{ latest_announcement.timestamp[:16] if latest_announcement.timestamp else 'Unknown Date' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% else %}
+    <!-- Ship Log (Announcements) - Updated System -->
+    {% if latest_announcement %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-ship glow-ocean ship-sail">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-scroll text-yonko"></i> Ship's Log & News Coo Messages
+                    </h4>
+                    {% if all_announcements|length > 1 %}
+                    <button class="btn btn-sm btn-outline-treasure glow-treasure" data-bs-toggle="modal" data-bs-target="#allAnnouncementsModal">
+                        <i class="fas fa-feather"></i> View All Messages ({{ all_announcements|length }})
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info glow-ocean ship-sail border-0">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-feather fa-2x text-treasure me-3"></i>
+                            <div>
+                                <strong class="text-yonko">{{ latest_announcement.title }}</strong>
+                                <span class="badge bg-success ms-2">LATEST</span>
+                                <br>
+                                {{ latest_announcement.content }}
+                                <small class="text-muted d-block mt-1">📅 {{ latest_announcement.timestamp[:16] if latest_announcement.timestamp else 'Unknown Date' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif all_announcements|length == 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-ship">
+                <div class="card-body text-center">
+                    <i class="fas fa-dove text-muted mb-3" style="font-size: 2rem;"></i>
+                    <p class="text-muted mb-0">No News Coo messages yet. The seas are quiet...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Announcements Modal -->
+    <div class="modal fade" id="allAnnouncementsModal" tabindex="-1" aria-labelledby="allAnnouncementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content bg-ship">
+                <div class="modal-header border-bottom border-treasure">
+                    <h5 class="modal-title text-yonko" id="allAnnouncementsModalLabel">
+                        <i class="fas fa-scroll"></i> All Ship's Log Entries ({{ all_announcements|length }})
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for announcement in all_announcements|reverse %}
+                    <div class="announcement-item mb-3 {% if loop.first %}latest-announcement{% endif %}">
+                        <div class="alert alert-info ship-sail">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-feather text-treasure me-2"></i>
+                                        <h6 class="mb-0 text-yonko">
+                                            {% if loop.first %}
+                                            <span class="badge bg-success me-2">⭐ LATEST</span>
+                                            {% endif %}
+                                            {{ announcement.title }}
+                                        </h6>
+                                    </div>
+                                    <p class="mb-0">{{ announcement.content }}</p>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ announcement.timestamp[:10] if announcement.timestamp else 'N/A' }}
+                                        <br>
+                                        <i class="fas fa-clock"></i>
+                                        {{ announcement.timestamp[11:16] if announcement.timestamp else '' }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer border-top border-treasure">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Close Log
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <!-- Devil Fruit Powers (Challenges) by Type -->
+            {% set devil_fruit_types = challenges|groupby('category') %}
+            {% for fruit_type, type_challenges in devil_fruit_types %}
+            <div class="mb-5">
+                <h3 class="text-yonko">
+                    <i class="fas fa-{{ {'Web': 'fire', 'Crypto': 'bolt', 'Pwn': 'fist-raised', 'Rev': 'snowflake', 'Forensics': 'water', 'Misc': 'star'}[fruit_type] or 'star' }}"></i>
+                    {{ {'Web': '🔥 WEB ', 'Crypto': '⚡ CRYPTO ', 'Pwn': '🌊 PWN ', 'Rev': '❄️ REVERSE ', 'Forensics': '🌊 FORENSICS ', 'Misc': '✨ MISC '}[fruit_type] or fruit_type }}
+                </h3>
+                <div class="row">
+                    {% for treasure in type_challenges %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card devil-fruit-card {{ 'completed' if treasure.solved else ('locked' if not treasure.unlocked else '') }} {{ {'Web': 'df-paramecia', 'Crypto': 'df-logia', 'Pwn': 'df-special', 'Rev': 'df-zoan', 'Forensics': 'df-logia', 'Misc': 'df-treasure'}[fruit_type] or 'df-treasure' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title text-treasure">
+                                        {{ treasure.title }}
+                                        {% if treasure.solved %}
+                                            <i class="fas fa-gem text-warning"></i>
+                                        {% elif not treasure.unlocked %}
+                                            <i class="fas fa-lock text-muted"></i>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="bounty-rank {{ {'Easy': 'rank-rookie', 'Medium': 'rank-pirate', 'Hard': 'rank-supernova'}[treasure.difficulty] or 'rank-rookie' }}">
+                                        {{ treasure.difficulty }} Bounty
+                                    </span>
+                                    <span class="badge badge-{{ {'Web': 'paramecia', 'Crypto': 'logia', 'Pwn': 'special', 'Rev': 'zoan', 'Forensics': 'logia', 'Misc': 'treasure'}[fruit_type] or 'treasure' }}">
+                                        {{ treasure.base_score }} Berry
+                                    </span>
+                                    <span class="badge bg-info">{{ treasure.solves }} Pirates</span>
+                                </div>
+                                
+                                {% if treasure.unlocked and not treasure.solved %}
+                                <button class="btn btn-primary glow-treasure" 
+                                        onclick="openTreasureMap('{{ treasure.id }}', '{{ treasure.title }}', `{{ treasure.description|replace('`', '\\`')|replace('\n', '\\n') }}`)">
+                                    <i class="fas fa-map"></i> Hunt Treasure
+                                </button>
+                                {% elif treasure.solved %}
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-crown"></i> Treasure Found
+                                </button>
+                                {% else %}
+                                <button class="btn btn-warning" disabled>
+                                    <i class="fas fa-lock"></i> Sealed
+                                </button>
+                                {% if treasure.requires %}
+                                <small class="d-block text-muted mt-1">
+                                    Requires: {{ treasure.requires|join(', ') }}
+                                </small>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-md-3">
+            <!-- Pirate Status -->
+            <div class="card bg-ship glow-treasure mb-3">
+                <div class="card-header">
+                    <h6><i class="fas fa-skull-crossbones text-yonko"></i> Your Bounty Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Rank:</span>
+                        <span class="text-treasure">#{{ user_rank if user_rank else '∞' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Bounty:</span>
+                        <span class="text-yonko">{{ user_total_score }}฿</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Treasures:</span>
+                        <span class="text-warning">{{ user_solved_count }}/{{ total_challenges }}</span>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar" style="width: {{ (user_solved_count/total_challenges*100) if total_challenges > 0 else 0 }}%;"></div>
+                    </div>
+                    <small class="text-muted">Progress to Pirate King</small>
+                </div>
+            </div>
+
+            <!-- Recent Treasure Finds -->
+            <div class="card bg-ship">
+                <div class="card-header">
+                    <h6><i class="fas fa-gem text-yonko"></i> Recent Treasure Hunts</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_solves %}
+                        {% for find in recent_solves %}
+                        <div class="d-flex align-items-center mb-2 treasure-found">
+                            <i class="fas fa-coins text-warning me-2"></i>
+                            <div class="flex-grow-1">
+                                <small class="text-treasure">{{ find.challenge_title }}</small>
+                                <div class="text-muted" style="font-size: 0.7rem;">{{ find.timestamp[:16] if find.timestamp else '' }}</div>
+                            </div>
+                            <span class="badge badge-treasure">+{{ find.score }}฿</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center">
+                        <i class="fas fa-map"></i><br>
+                        No treasure found yet.<br>
+                        Start your adventure!
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Treasure Map Modal -->
+<div class="modal fade" id="treasureModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-yonko" id="treasureTitle">
+                    <i class="fas fa-map"></i> <span id="treasureTitleText"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card bg-ship mb-3">
+                    <div class="card-body">
+                        <div id="treasureDescription" class="mb-3"></div>
+                    </div>
+                </div>
+                
+                <form id="treasureForm">
+                    <label class="form-label text-treasure">
+                        <i class="fas fa-key"></i> Enter the Secret Treasure Code:
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="treasureInput" 
+                               placeholder="ONEPIECE{treasure_location}" required 
+                               style="font-family: 'Courier New', monospace;">
+                        <input type="hidden" id="treasureId">
+                        <button type="submit" class="btn btn-primary glow-treasure">
+                            <i class="fas fa-search"></i> Hunt Treasure
+                        </button>
+                    </div>
+                </form>
+                <div id="treasureResult" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Announcement Modal Styles */
+.announcement-item {
+    transition: all 0.3s ease;
+}
+
+.announcement-item:hover {
+    transform: translateX(5px);
+}
+
+.announcement-item.latest-announcement .alert {
+    border-left: 4px solid #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+}
+
+.modal-content.bg-ship {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-accent);
+}
+
+.border-treasure {
+    border-color: var(--treasure-gold) !important;
+}
+
+.btn-outline-treasure {
+    color: var(--treasure-gold);
+    border-color: var(--treasure-gold);
+}
+
+.btn-outline-treasure:hover {
+    background-color: var(--treasure-gold);
+    border-color: var(--treasure-gold);
+    color: var(--bg-dark);
+}
+
+/* Modal Enhancements */
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-body {
+    max-height: 70vh;
+}
+
+/* Ocean wave animation for announcements */
+@keyframes oceanWave {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-2px); }
+}
+
+.ship-sail {
+    animation: oceanWave 3s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .announcement-item:hover {
+        transform: none;
+    }
+    
+    .modal-lg {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+}
+</style>
+
+<script>
+// Updated JavaScript for One Piece theme
+function openTreasureMap(id, title, description) {
+    document.getElementById('treasureId').value = id;
+    document.getElementById('treasureTitleText').textContent = title;
+    document.getElementById('treasureDescription').innerHTML = description;
+    document.getElementById('treasureResult').innerHTML = '';
+    document.getElementById('treasureInput').value = '';
+    
+    // Play ship bell sound
+    if (window.playShipBellSound) {
+        window.playShipBellSound();
+    }
+    
+    const modal = document.getElementById('treasureModal');
+    modal.classList.add('ship-sail');
+    
+    new bootstrap.Modal(modal).show();
+}
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Only add event listener if the form exists
+    const treasureForm = document.getElementById('treasureForm');
+    if (treasureForm) {
+        treasureForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="compass-loading"></div> Searching for Treasure...';
+            submitBtn.disabled = true;
+            
+            // Play cannon sound
+            if (window.playCannonSound) {
+                window.playCannonSound();
+            }
+            
+            const formData = new FormData();
+            formData.append('challenge_id', document.getElementById('treasureId').value);
+            formData.append('flag', document.getElementById('treasureInput').value);
+            
+            fetch('/submit_flag', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('treasureResult');
+                if (data.success) {
+                    if (window.playTreasureSound) {
+                        window.playTreasureSound();
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success treasure-found">
+                            <i class="fas fa-gem"></i> ${data.message}
+                            <div class="mt-2">
+                                <span class="badge badge-treasure">💰 TREASURE DISCOVERED!</span>
+                                <span class="badge badge-paramecia">🏴‍☠️ BOUNTY INCREASED!</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Create treasure explosion effect
+                    if (window.createTreasureExplosion) {
+                        window.createTreasureExplosion();
+                    }
+                    
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger ship-sail">
+                            <i class="fas fa-skull-crossbones"></i> ${data.message}
+                            <div class="mt-2">
+                                <span class="badge badge-marine">⚓ Keep Searching!</span>
+                                <span class="badge bg-warning text-dark">🗺️ Check Your Map Again!</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('treasureResult').innerHTML = 
+                    '<div class="alert alert-danger">Your ship hit a storm! Please try again.</div>';
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+
+    // Add random pirate wisdom
+    const pirateWisdom = [
+        "Dreams never end! - Blackbeard",
+        "I'm gonna be King of the Pirates! - Luffy",
+        "A man's dream will never die! - Whitebeard",
+        "I want to live! - Robin",
+        "People's dreams... never end! - Blackbeard",
+        "When do you think people die? When they're forgotten! - Dr. Hiluluk"
+    ];
+    
+    // Show random wisdom occasionally
+    if (Math.random() < 0.2) { // 20% chance
+        setTimeout(() => {
+            const wisdom = pirateWisdom[Math.floor(Math.random() * pirateWisdom.length)];
+            if (window.showPirateToast) {
+                window.showPirateToast(`💭 "${wisdom}"`, 'info');
+            }
+        }, 3000);
+    }
+    
+    // Add ocean float effect to cards
+    const cards = document.querySelectorAll('.devil-fruit-card');
+    if (cards.length > 0) {
+        // Add CSS for ocean float animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes oceanFloat {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-3px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Apply animation to cards
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.animation = `oceanFloat 4s ease-in-out infinite`;
+                card.style.animationDelay = (index * 0.2) + 's';
+            }, 1000);
+        });
+    }
+});
+</script>
+{% endblock %}

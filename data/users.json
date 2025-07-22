@@ -1,0 +1,15 @@
+[
+  {
+    "id": "d27f80d4-3e18-426c-b521-53f0452709da",
+    "username": "admin",
+    "email": "mysticraganork66@gmail.com",
+    "password": "pbkdf2:sha256:600000$kY2GVYeTAtgDUMML$dbd420e1ff0035b26feacc2a9ecc44c64c42cc577176065bd616e6c6f775cf8a",
+    "is_admin": true,
+    "team_name": "",
+    "created_at": "2025-07-22T19:05:12.364670",
+    "avatar_seed": "1fa21be2-b6dd-42bc-be18-a85521f1a921",
+    "bio": "",
+    "location": "",
+    "website": ""
+  }
+]

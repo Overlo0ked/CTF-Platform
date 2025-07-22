@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}🏴‍☠️ Grand Line CTF Academy{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏴‍☠️</text></svg>">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                The Blue Sea Bootcamp
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                {% if session.user_id %}
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-ship"></i> Ship
+                    </a>
+                    <a class="nav-link" href="{{ url_for('user_profile') }}">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                    <a class="nav-link" href="{{ url_for('scoreboard') }}">
+                        <i class="fas fa-crown"></i> Bounty Board
+                    </a>
+                    {% if session.is_admin %}
+                        <a class="nav-link" href="{{ url_for('admin_panel') }}">
+                            <i class="fas fa-anchor"></i> Fleet Admiral
+                        </a>
+                    {% endif %}
+                    <span class="nav-link username">
+                        <i class="fas fa-user-pirate"></i> {{ session.username }}
+                    </span>
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> Abandon Ship
+                    </a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">Board Ship</a>
+                    <a class="nav-link" href="{{ url_for('register') }}">Join Crew</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show ship-sail">
+                        <i class="fas fa-{{ 'skull-crossbones' if category == 'error' else 'gem' }}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Background ocean sounds -->
+    <audio id="ocean-ambience" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPqOPwtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhAUCb3/LLcSkHLIHO8tiJOQcYZr3t559NEAxPpuPxtmMcBjiR1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwB" type="audio/wav">
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

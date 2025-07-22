@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Scoreboard - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-trophy"></i> Scoreboard</h2>
+        
+        {% if team_mode and team_leaderboard %}
+        <ul class="nav nav-tabs" id="scoreboardTabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="individual-tab" data-bs-toggle="tab" href="#individual">Individual</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="team-tab" data-bs-toggle="tab" href="#team">Team</a>
+            </li>
+        </ul>
+        
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="individual">
+        {% endif %}
+        
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Username</th>
+                                <th>Score</th>
+                                <th>Solves</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in leaderboard %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.total }}</td>
+                                <td>{{ user.solves }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+        
+        {% if team_mode and team_leaderboard %}
+            </div>
+            <div class="tab-pane fade" id="team">
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>Score</th>
+                                <th>Solves</th>
+                                <th>Members</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team_name, team_data in team_leaderboard %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ team_name }}</td>
+                                <td>{{ team_data.total }}</td>
+                                <td>{{ team_data.solves }}</td>
+                                <td>{{ team_data.members|join(', ') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
