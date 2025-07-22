@@ -32,7 +32,6 @@ A complete Capture The Flag (CTF) web platform that runs entirely on JSON files 
 - **Zero-Cost Hosting** - Runs on free platforms
 
 ## 🚀 Quick Start
-
 ### 1. Create Project Structure
 ```powershell
 # Run this PowerShell script to create all directories and files
