@@ -508,6 +508,11 @@ def admin_reset():
         users = load_json(USERS_FILE)
         admin_users = [u for u in users if u.get('is_admin', False)]
         save_json(USERS_FILE, admin_users)
+        # Reset solves count for all challenges
+        challenges = load_json(CHALLENGES_FILE)
+        for challenge in challenges:
+            challenge['solves'] = 0
+        save_json(CHALLENGES_FILE, challenges)
         flash('CTF Reset Complete!', 'success')
     return render_template('admin/reset.html')
 
