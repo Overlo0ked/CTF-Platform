@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import uuid
 from functools import wraps
-import requests  # For Telegram integration
+import requests
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
