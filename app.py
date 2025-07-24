@@ -20,6 +20,7 @@ ANNOUNCEMENTS_FILE = os.path.join(DATA_DIR, 'announcements.json')
 CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
 LOGINS_FILE = os.path.join(DATA_DIR, 'logins.json')
 TEAMS_FILE = os.path.join(DATA_DIR, 'teams.json')
+HINTS_FILE = os.path.join(DATA_DIR, 'hints.json')
 
 def load_json(filename):
     try:
@@ -99,6 +100,12 @@ def calculate_dynamic_score(base_score, solves, total_users):
 def generate_avatar_url(user):
     seed = user.get('avatar_seed', user['id'])
     return f"https://api.dicebear.com/7.x/adventurer-neutral/svg?seed={seed}&size=200"
+
+def get_hint_penalty(user_id, challenge_id, base_score):
+    hints_data = load_json(HINTS_FILE)
+    hints_taken = [h for h in hints_data if h['user_id'] == user_id and h['challenge_id'] == challenge_id]
+    penalty_per_hint = int(base_score * 0.10)
+    return penalty_per_hint * len(set(h['hint_index'] for h in hints_taken))
 
 # --- Telegram Bot Integration ---
 def send_file_to_telegram(file_path, bot_token, chat_id):
@@ -239,6 +246,48 @@ def dashboard():
                          total_challenges=total_challenges,
                          recent_solves=recent_solves)
 
+@app.route('/challenge/<challenge_id>')
+@login_required
+def challenge_view(challenge_id):
+    challenges = load_json(CHALLENGES_FILE)
+    challenge = next((c for c in challenges if c['id'] == challenge_id), None)
+    if not challenge:
+        flash('Challenge not found!', 'error')
+        return redirect(url_for('dashboard'))
+
+    # Get hints taken by this user for this challenge
+    hints_data = load_json(HINTS_FILE)
+    hints_taken = sorted([
+        h['hint_index'] for h in hints_data
+        if h['user_id'] == session['user_id'] and h['challenge_id'] == challenge_id
+    ])
+
+    # Get user's score for this challenge (after hint penalties)
+    scores = load_json(SCORES_FILE)
+    user_score_entry = next(
+        (s for s in scores if s['user_id'] == session['user_id'] and s['challenge_id'] == challenge_id),
+        None
+    )
+    user_score = None
+    if user_score_entry:
+        user_score = user_score_entry['score']
+    else:
+        # If not solved, show what the score would be if solved now (after hint penalties)
+        users = load_json(USERS_FILE)
+        total_users = len(users)
+        current_solves = len([s for s in scores if s['challenge_id'] == challenge_id])
+        base_score = challenge['base_score']
+        dynamic_score = calculate_dynamic_score(base_score, current_solves, total_users)
+        penalty = get_hint_penalty(session['user_id'], challenge_id, base_score)
+        user_score = max(0, dynamic_score - penalty)
+
+    return render_template(
+        'challenge.html',
+        challenge=challenge,
+        hints_taken=hints_taken,
+        user_score=user_score
+    )
+
 @app.route('/profile')
 @app.route('/profile/<username>')
 @login_required
@@ -322,6 +371,9 @@ def submit_flag():
             current_solves, 
             total_users
         )
+        # Deduct score for hints taken
+        penalty = get_hint_penalty(session['user_id'], challenge_id, challenge['base_score'])
+        final_score = max(0, final_score - penalty)
         score_entry = {
             "user_id": session['user_id'],
             "username": session['username'],
@@ -337,6 +389,46 @@ def submit_flag():
         return jsonify({"success": True, "message": f"Correct! +{final_score} points"})
     else:
         return jsonify({"success": False, "message": "Incorrect flag!"})
+
+@app.route('/take_hint/<challenge_id>/<int:hint_index>', methods=['POST'])
+@login_required
+def take_hint(challenge_id, hint_index):
+    hints_data = load_json(HINTS_FILE)
+    entry = {
+        "user_id": session['user_id'],
+        "challenge_id": challenge_id,
+        "hint_index": hint_index
+    }
+    # Prevent duplicate
+    if not any(
+        h['user_id'] == entry['user_id'] and
+        h['challenge_id'] == entry['challenge_id'] and
+        h['hint_index'] == entry['hint_index']
+        for h in hints_data
+    ):
+        hints_data.append(entry)
+        save_json(HINTS_FILE, hints_data)
+
+        # If user already solved, update their score with new penalty
+        scores = load_json(SCORES_FILE)
+        score_entry = next(
+            (s for s in scores if s['user_id'] == session['user_id'] and s['challenge_id'] == challenge_id),
+            None
+        )
+        if score_entry:
+            challenges = load_json(CHALLENGES_FILE)
+            challenge = next((c for c in challenges if c['id'] == challenge_id), None)
+            if challenge:
+                base_score = challenge['base_score']
+                # Recalculate penalty
+                penalty = get_hint_penalty(session['user_id'], challenge_id, base_score)
+                # The score at solve time already had previous penalty deducted,
+                # so just deduct the new penalty for this hint
+                # (i.e., minus 10% of base_score for each new hint)
+                new_score = max(0, score_entry['score'] - int(base_score * 0.10))
+                score_entry['score'] = new_score
+                save_json(SCORES_FILE, scores)
+    return jsonify({"success": True})
 
 @app.route('/scoreboard')
 def scoreboard():
@@ -400,10 +492,15 @@ def admin_config():
 @app.route('/admin/challenges', methods=['GET', 'POST'])
 @admin_required
 def admin_challenges():
+    challenges = load_json(CHALLENGES_FILE)
     if request.method == 'POST':
         action = request.form['action']
         if action == 'add':
-            challenges = load_json(CHALLENGES_FILE)
+            hints = []
+            for i in range(1, 4):
+                hint = request.form.get(f'hint{i}', '').strip()
+                if hint:
+                    hints.append(hint)
             challenge = {
                 "id": request.form['id'],
                 "title": request.form['title'],
@@ -415,19 +512,49 @@ def admin_challenges():
                 "visible": 'visible' in request.form,
                 "solves": 0,
                 "requires": request.form['requires'].split(',') if request.form['requires'] else [],
-                "hints": []
+                "hints": hints
             }
             challenges.append(challenge)
             save_json(CHALLENGES_FILE, challenges)
             flash('Challenge added!', 'success')
+        elif action == 'edit':
+            challenge_id = request.form['id']
+            for c in challenges:
+                if c['id'] == challenge_id:
+                    c['title'] = request.form['title']
+                    c['description'] = request.form['description']
+                    c['category'] = request.form['category']
+                    c['flag'] = request.form['flag']
+                    c['base_score'] = int(request.form['base_score'])
+                    c['difficulty'] = request.form['difficulty']
+                    c['visible'] = 'visible' in request.form
+                    c['requires'] = request.form['requires'].split(',') if request.form['requires'] else []
+                    hints = []
+                    for i in range(1, 4):
+                        hint = request.form.get(f'hint{i}', '').strip()
+                        if hint:
+                            hints.append(hint)
+                    c['hints'] = hints
+                    break
+            save_json(CHALLENGES_FILE, challenges)
+            flash('Challenge updated!', 'success')
         elif action == 'delete':
-            challenges = load_json(CHALLENGES_FILE)
             challenge_id = request.form['challenge_id']
             challenges = [c for c in challenges if c['id'] != challenge_id]
             save_json(CHALLENGES_FILE, challenges)
             flash('Challenge deleted!', 'success')
     challenges = load_json(CHALLENGES_FILE)
     return render_template('admin/challenges.html', challenges=challenges)
+
+@app.route('/admin/challenges/edit/<challenge_id>', methods=['GET'])
+@admin_required
+def edit_challenge(challenge_id):
+    challenges = load_json(CHALLENGES_FILE)
+    challenge = next((c for c in challenges if c['id'] == challenge_id), None)
+    if not challenge:
+        flash('Challenge not found!', 'error')
+        return redirect(url_for('admin_challenges'))
+    return render_template('admin/edit_challenge.html', challenge=challenge)
 
 @app.route('/admin/users')
 @admin_required
@@ -436,7 +563,6 @@ def admin_users():
     logins = load_json(LOGINS_FILE)
     return render_template('admin/users.html', users=users, logins=logins)
 
-# --- Promote User to Admin ---
 @app.route('/admin/promote/<user_id>', methods=['POST'])
 @admin_required
 def promote_user(user_id):
@@ -496,7 +622,7 @@ def admin_reset():
         chat_id = config.get('telegram_chat_id')
         json_files = [
             USERS_FILE, CHALLENGES_FILE, SCORES_FILE, SUBMISSIONS_FILE,
-            ANNOUNCEMENTS_FILE, CONFIG_FILE, LOGINS_FILE, TEAMS_FILE
+            ANNOUNCEMENTS_FILE, CONFIG_FILE, LOGINS_FILE, TEAMS_FILE, HINTS_FILE
         ]
         for file_path in json_files:
             if os.path.exists(file_path):
@@ -505,6 +631,7 @@ def admin_reset():
         save_json(SCORES_FILE, [])
         save_json(SUBMISSIONS_FILE, [])
         save_json(LOGINS_FILE, [])
+        save_json(HINTS_FILE, [])
         users = load_json(USERS_FILE)
         admin_users = [u for u in users if u.get('is_admin', False)]
         save_json(USERS_FILE, admin_users)
@@ -516,13 +643,12 @@ def admin_reset():
         flash('CTF Reset Complete!', 'success')
     return render_template('admin/reset.html')
 
-# ----------- ADMIN DOWNLOAD ROUTE -----------
 @app.route('/admin/download/<filename>')
 @admin_required
 def admin_download_file(filename):
     allowed_files = [
         'users.json', 'challenges.json', 'scores.json', 'submissions.json',
-        'announcements.json', 'config.json', 'logins.json', 'teams.json'
+        'announcements.json', 'config.json', 'logins.json', 'teams.json', 'hints.json'
     ]
     if filename not in allowed_files:
         abort(404)
@@ -530,11 +656,10 @@ def admin_download_file(filename):
     if not os.path.exists(file_path):
         abort(404)
     return send_file(file_path, as_attachment=True)
-# --------------------------------------------
 
 if __name__ == '__main__':
     os.makedirs(DATA_DIR, exist_ok=True)
-    for file_path in [USERS_FILE, CHALLENGES_FILE, SCORES_FILE, SUBMISSIONS_FILE, ANNOUNCEMENTS_FILE, LOGINS_FILE, TEAMS_FILE]:
+    for file_path in [USERS_FILE, CHALLENGES_FILE, SCORES_FILE, SUBMISSIONS_FILE, ANNOUNCEMENTS_FILE, LOGINS_FILE, TEAMS_FILE, HINTS_FILE]:
         if not os.path.exists(file_path):
             save_json(file_path, [])
     if not os.path.exists(CONFIG_FILE):
