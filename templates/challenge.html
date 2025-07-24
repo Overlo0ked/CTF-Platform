@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>{{ challenge.title }}</h4>
+                <h4 class="text-white">{{ challenge.title }}</h4>
                 <div>
                     <span class="badge bg-secondary">{{ challenge.category }}</span>
                     <span class="badge bg-primary">{{ challenge.base_score }} pts</span>
@@ -19,26 +19,113 @@
                     {{ challenge.description|safe }}
                 </div>
                 
-                {% if challenge.hints %}
+                {% if challenge.hints and challenge.hints|length > 0 %}
                 <div class="mb-4">
                     <h6>Hints:</h6>
+                    {% set next_hint = hints_taken|length if hints_taken else 0 %}
                     {% for hint in challenge.hints %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb"></i> {{ hint.text }}
-                    </div>
+                        <div id="hint-{{ loop.index0 }}">
+                            {% if hints_taken and loop.index0 in hints_taken %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-lightbulb"></i>
+                                    {{ hint }}
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        -{{ (challenge.base_score * 0.10)|int }} pts
+                                    </span>
+                                </div>
+                            {% elif loop.index0 == next_hint %}
+                                <button type="button"
+                                        class="btn btn-outline-info btn-sm mb-2"
+                                        onclick="return takeHintWithConfirm('{{ challenge.id }}', {{ loop.index0 }}, {{ (user_score is defined and user_score is not none and user_score > 0) | lower }});">
+                                    <i class="fas fa-eye"></i> Show Hint {{ loop.index }}
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        -{{ (challenge.base_score * 0.10)|int }} pts
+                                    </span>
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-outline-info btn-sm mb-2" disabled>
+                                    <i class="fas fa-eye"></i> Show Hint {{ loop.index }}
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        -{{ (challenge.base_score * 0.10)|int }} pts
+                                    </span>
+                                </button>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
                 {% endif %}
+
+                {% if user_score is defined and user_score is not none %}
+                <div class="mb-3">
+                    <div class="alert alert-success">
+                        <i class="fas fa-coins"></i>
+                        Your current score for this challenge: <b>{{ user_score }}</b> pts
+                    </div>
+                </div>
+                {% endif %}
                 
-                <form method="POST" action="{{ url_for('submit_flag') }}">
+                <form id="flagForm" onsubmit="return submitFlag();">
                     <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                    <!-- Optional CSRF token -->
+                    {# <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> #}
                     <div class="input-group">
-                        <input type="text" class="form-control" name="flag" placeholder="Enter flag..." required>
+                        <input type="text" class="form-control" name="flag" id="flagInput" placeholder="ONEPIECE{Anything_Here}" required>
                         <button type="submit" class="btn btn-primary">Submit Flag</button>
                     </div>
                 </form>
+                <div id="flagResult" class="mt-3"></div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function takeHintWithConfirm(challengeId, hintIndex, alreadySolved) {
+    if (alreadySolved) {
+        return confirm("Using a hint will cost points, whether you've solved the challenge or not. Are you sure you want to proceed?")
+            ? takeHint(challengeId, hintIndex)
+            : false;
+    }
+    return takeHint(challengeId, hintIndex);
+}
+
+function takeHint(challengeId, hintIndex) {
+    fetch(`/take_hint/${challengeId}/${hintIndex}`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+    return false;
+}
+
+function submitFlag() {
+    const form = document.getElementById('flagForm');
+    const formData = new FormData(form);
+
+    fetch('{{ url_for("submit_flag") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('flagResult');
+        if (data.success) {
+            resultDiv.innerHTML = `<div class="alert alert-success"><i class="fas fa-check"></i> ${data.message}</div>`;
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times"></i> ${data.message}</div>`;
+        }
+    });
+    return false;
+}
+</script>
 {% endblock %}
