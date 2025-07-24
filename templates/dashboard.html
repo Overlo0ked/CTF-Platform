@@ -50,7 +50,6 @@
         {% endif %}
     </div>
 {% else %}
-    <!-- Ship Log (Announcements) - Updated System -->
     {% if latest_announcement %}
     <div class="row mb-4">
         <div class="col-12">
@@ -147,7 +146,6 @@
 
     <div class="row">
         <div class="col-md-9">
-            <!-- Devil Fruit Powers (Challenges) by Type -->
             {% set devil_fruit_types = challenges|groupby('category') %}
             {% for fruit_type, type_challenges in devil_fruit_types %}
             <div class="mb-5">
@@ -161,7 +159,7 @@
                         <div class="card devil-fruit-card {{ 'completed' if treasure.solved else ('locked' if not treasure.unlocked else '') }} {{ {'Web': 'df-paramecia', 'Crypto': 'df-logia', 'Pwn': 'df-special', 'Rev': 'df-zoan', 'Forensics': 'df-logia', 'Misc': 'df-treasure'}[fruit_type] or 'df-treasure' }}">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h5 class="card-title text-treasure">
+                                    <h5 class="card-title text-treasure" style="color: #fff; text-decoration: none;">
                                         {{ treasure.title }}
                                         {% if treasure.solved %}
                                             <i class="fas fa-gem text-warning"></i>
@@ -182,10 +180,9 @@
                                 </div>
                                 
                                 {% if treasure.unlocked and not treasure.solved %}
-                                <button class="btn btn-primary glow-treasure" 
-                                        onclick="openTreasureMap('{{ treasure.id }}', '{{ treasure.title }}', `{{ treasure.description|replace('`', '\\`')|replace('\n', '\\n') }}`)">
+                                <a href="{{ url_for('challenge_view', challenge_id=treasure.id) }}" class="btn btn-primary glow-treasure">
                                     <i class="fas fa-map"></i> Hunt Treasure
-                                </button>
+                                </a>
                                 {% elif treasure.solved %}
                                 <button class="btn btn-success" disabled>
                                     <i class="fas fa-crown"></i> Treasure Found
@@ -210,7 +207,6 @@
         </div>
         
         <div class="col-md-3">
-            <!-- Pirate Status -->
             <div class="card bg-ship glow-treasure mb-3">
                 <div class="card-header">
                     <h6><i class="fas fa-skull-crossbones text-yonko"></i> Your Bounty Status</h6>
@@ -235,7 +231,6 @@
                 </div>
             </div>
 
-            <!-- Recent Treasure Finds -->
             <div class="card bg-ship">
                 <div class="card-header">
                     <h6><i class="fas fa-gem text-yonko"></i> Recent Treasure Hunts</h6>
@@ -265,7 +260,6 @@
     </div>
 {% endif %}
 
-<!-- Treasure Map Modal -->
 <div class="modal fade" id="treasureModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -304,6 +298,7 @@
 {% endblock %}
 
 {% block scripts %}
+
 <style>
 /* Announcement Modal Styles */
 .announcement-item {
@@ -508,4 +503,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<!-- (Your existing scripts and styles remain unchanged) -->
 {% endblock %}
