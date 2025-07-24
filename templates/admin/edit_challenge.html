@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Challenge - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-edit"></i> Edit Challenge</h2>
+        <a href="{{ url_for('admin_challenges') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Challenges
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit Challenge: <code>{{ challenge.id }}</code></h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_challenges') }}">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="id" value="{{ challenge.id }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" required value="{{ challenge.title }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-control" name="category" required>
+                                    <option value="Web" {% if challenge.category == 'Web' %}selected{% endif %}>Web</option>
+                                    <option value="Crypto" {% if challenge.category == 'Crypto' %}selected{% endif %}>Crypto</option>
+                                    <option value="Pwn" {% if challenge.category == 'Pwn' %}selected{% endif %}>Pwn</option>
+                                    <option value="Rev" {% if challenge.category == 'Rev' %}selected{% endif %}>Reverse Engineering</option>
+                                    <option value="Misc" {% if challenge.category == 'Misc' %}selected{% endif %}>Miscellaneous</option>
+                                    <option value="Forensics" {% if challenge.category == 'Forensics' %}selected{% endif %}>Forensics</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="4" required>{{ challenge.description }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Difficulty</label>
+                                <select class="form-control" name="difficulty" required>
+                                    <option value="Easy" {% if challenge.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                                    <option value="Medium" {% if challenge.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                                    <option value="Hard" {% if challenge.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Base Score</label>
+                                <input type="number" class="form-control" name="base_score" required min="1" value="{{ challenge.base_score }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Flag</label>
+                                <input type="text" class="form-control" name="flag" required value="{{ challenge.flag }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3 form-check mt-4">
+                                <input type="checkbox" class="form-check-input" name="visible" id="visible"
+                                    {% if challenge.visible %}checked{% endif %}>
+                                <label class="form-check-label" for="visible">
+                                    Visible
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Prerequisites (comma-separated IDs)</label>
+                        <input type="text" class="form-control" name="requires" value="{{ challenge.requires|join(',') }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Hint 1</label>
+                        <input type="text" class="form-control" name="hint1" value="{{ challenge.hints[0] if challenge.hints|length > 0 else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hint 2</label>
+                        <input type="text" class="form-control" name="hint2" value="{{ challenge.hints[1] if challenge.hints|length > 1 else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hint 3</label>
+                        <input type="text" class="form-control" name="hint3" value="{{ challenge.hints[2] if challenge.hints|length > 2 else '' }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
