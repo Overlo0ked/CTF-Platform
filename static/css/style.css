@@ -939,3 +939,7 @@ body::before {
 .table-striped > tbody > tr:nth-of-type(even) {
     background-color: rgba(0, 255, 136, 0.02) !important;
 }
+.card-header h4, .card-header .text-white {
+    color: #fff !important;
+    text-decoration: none !important;
+}
