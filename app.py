@@ -8,7 +8,7 @@ from functools import wraps
 import requests
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
+app.secret_key = os.environ.get('SECRET_KEY')
 
 # Data file paths
 DATA_DIR = 'data'
