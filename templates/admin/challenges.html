@@ -54,7 +54,6 @@
                                     <option value="Rev">Reverse Engineering</option>
                                     <option value="Misc">Miscellaneous</option>
                                     <option value="Forensics">Forensics</option>
-                                    <option value="Osint">Osint</option>
                                 </select>
                             </div>
                         </div>
@@ -89,7 +88,7 @@
                             <div class="mb-3">
                                 <label for="flag" class="form-label">Flag</label>
                                 <input type="text" class="form-control" name="flag" required 
-                                       placeholder="ONEPIECE{Anything_Here}">
+                                       placeholder="DUCTF{example_flag}">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -148,6 +147,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    <a href="{{ url_for('edit_challenge', challenge_id=challenge.id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
